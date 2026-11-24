@@ -78,9 +78,9 @@ class TestDHMitmPipeline(unittest.TestCase):
         self.assertEqual(res_ai_off.status_code, 200)
         data_off = res_ai_off.get_json()
         self.assertFalse(data_off["ai_enabled"])
-        self.assertIsNone(data_off["detection"]["risk_score"])
+        self.assertEqual(data_off["detection"]["risk_score"], 0)
         self.assertFalse(data_off["detection"]["is_anomalous"])
-        self.assertEqual(data_off["detection"]["verdict"], "AI DISABLED — UNMONITORED")
+        self.assertEqual(data_off["detection"]["verdict"], "ACCEPTED (NO AI)")
 
         res_sessions = client.get("/api/sessions")
         self.assertEqual(res_sessions.status_code, 200)

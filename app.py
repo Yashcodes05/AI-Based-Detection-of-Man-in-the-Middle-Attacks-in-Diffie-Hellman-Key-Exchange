@@ -38,11 +38,11 @@ def api_simulate():
         verdict = detector.score_session(session.telemetry).to_dict()
     else:
         verdict = {
-            "risk_score": None,
-            "risk_level": "OFF",
-            "verdict": "AI DISABLED — UNMONITORED",
+            "risk_score": 0,
+            "risk_level": "NORMAL",
+            "verdict": "ACCEPTED (NO AI)",
             "is_anomalous": False,
-            "raw_anomaly_score": None,
+            "raw_anomaly_score": 0.0,
             "indicators": [],
         }
 

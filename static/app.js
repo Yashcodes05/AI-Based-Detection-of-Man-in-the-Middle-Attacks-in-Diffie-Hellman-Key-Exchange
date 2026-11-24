@@ -79,7 +79,7 @@ function renderSessions(sessions) {
         : d.risk_level === "MEDIUM"
         ? "medium"
         : "normal";
-      const scoreText = aiOn ? `${d.risk_score}/100` : "N/A";
+      const scoreText = `${d.risk_score}/100`;
       return `
         <tr>
           <td>${item.timestamp}</td>
@@ -107,7 +107,7 @@ function renderLatest(record) {
   const bar = document.getElementById("risk-bar");
 
   const cls = !aiOn
-    ? "off"
+    ? "normal"
     : d.risk_level === "HIGH"
     ? "high"
     : d.risk_level === "MEDIUM"
@@ -119,12 +119,12 @@ function renderLatest(record) {
 
   const indList = document.getElementById("indicators-list");
   if (!aiOn) {
-    scoreEl.textContent = "N/A";
-    level.textContent = "AI OFF";
-    bar.style.width = "0%";
-    indList.innerHTML = s.attacker_intercepted
-      ? '<li class="ind-medium"><span><strong>[BLIND SPOT]</strong> MITM succeeded silently — Alice &amp; Bob accepted split keys without any AI alert.</span><span class="meta">Unprotected</span></li>'
-      : '<li class="muted">AI monitoring is turned OFF — handshake accepted without behavioral inspection.</li>';
+    scoreEl.textContent = d.risk_score;
+    level.textContent = "NORMAL";
+    bar.style.width = "10%";
+    bar.style.background = "var(--green)";
+    indList.innerHTML =
+      '<li class="muted">No anomalies reported — standard DH without AI assumes this handshake is normal (even if intercepted).</li>';
   } else {
     scoreEl.textContent = d.risk_score;
     level.textContent = d.risk_level;
