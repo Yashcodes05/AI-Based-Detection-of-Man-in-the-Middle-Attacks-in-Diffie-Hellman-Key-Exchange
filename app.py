@@ -30,14 +30,27 @@ def api_simulate():
     if profile not in VALID_PROFILES:
         return jsonify({"error": f"Invalid attack_profile: {profile}"}), 400
 
+    ai_enabled = bool(payload.get("ai_enabled", True))
     attack_profile: AttackProfile = profile  # type: ignore[assignment]
     session = run_socket_dh_session(attack_profile=attack_profile)
-    verdict = detector.score_session(session.telemetry)
+
+    if ai_enabled:
+        verdict = detector.score_session(session.telemetry).to_dict()
+    else:
+        verdict = {
+            "risk_score": None,
+            "risk_level": "OFF",
+            "verdict": "AI DISABLED — UNMONITORED",
+            "is_anomalous": False,
+            "raw_anomaly_score": None,
+            "indicators": [],
+        }
 
     record = {
         "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S UTC"),
+        "ai_enabled": ai_enabled,
         "session": session.to_dict(),
-        "detection": verdict.to_dict(),
+        "detection": verdict,
     }
     session_history.appendleft(record)
     return jsonify(record)

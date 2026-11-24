@@ -68,11 +68,19 @@ class TestDHMitmPipeline(unittest.TestCase):
         data_norm = res_norm.get_json()
         self.assertTrue(data_norm["session"]["secrets_match"])
 
-        res_mitm = client.post("/api/simulate", json={"attack_profile": "active_mitm"})
+        res_mitm = client.post("/api/simulate", json={"attack_profile": "active_mitm", "ai_enabled": True})
         self.assertEqual(res_mitm.status_code, 200)
         data_mitm = res_mitm.get_json()
         self.assertFalse(data_mitm["session"]["secrets_match"])
         self.assertTrue(data_mitm["detection"]["is_anomalous"])
+
+        res_ai_off = client.post("/api/simulate", json={"attack_profile": "active_mitm", "ai_enabled": False})
+        self.assertEqual(res_ai_off.status_code, 200)
+        data_off = res_ai_off.get_json()
+        self.assertFalse(data_off["ai_enabled"])
+        self.assertIsNone(data_off["detection"]["risk_score"])
+        self.assertFalse(data_off["detection"]["is_anomalous"])
+        self.assertEqual(data_off["detection"]["verdict"], "AI DISABLED — UNMONITORED")
 
         res_sessions = client.get("/api/sessions")
         self.assertEqual(res_sessions.status_code, 200)

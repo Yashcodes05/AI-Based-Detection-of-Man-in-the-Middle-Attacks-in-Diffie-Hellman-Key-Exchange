@@ -28,8 +28,20 @@
           <button id="btn-mitm" class="btn btn-danger">Simulate MITM Attack</button>
         </div>
       </div>
-      <button id="btn-retrain" class="btn btn-ghost">Retrain Baseline</button>
+      <div class="control-group">
+        <label class="ai-toggle" for="ai-toggle-input" title="Toggle AI Behavioral Detection Layer">
+          <input type="checkbox" id="ai-toggle-input" checked />
+          <span class="toggle-slider"></span>
+          <span class="toggle-text" id="ai-toggle-label">AI Detection: <strong>ON</strong></span>
+        </label>
+        <button id="btn-retrain" class="btn btn-ghost">Retrain Baseline</button>
+      </div>
     </section>
+
+    <div class="ai-banner ai-banner-on" id="ai-banner">
+      <span class="banner-dot"></span>
+      <span id="ai-banner-text">AI Behavioral Monitor is <strong>ACTIVE</strong> — handshakes are scored in real time for MITM anomalies.</span>
+    </div>
 
     <main class="grid-2">
       <!-- Risk Score & Interpretable Indicators (Slide 8) -->
@@ -128,6 +140,7 @@
             <tr>
               <th>Time</th>
               <th>Session ID</th>
+              <th>AI Layer</th>
               <th>Actual Mode</th>
               <th>Secrets Match</th>
               <th>Risk Score</th>
@@ -136,7 +149,7 @@
             </tr>
           </thead>
           <tbody id="sessions-body">
-            <tr><td colspan="7" class="muted">No sessions recorded yet.</td></tr>
+            <tr><td colspan="8" class="muted">No sessions recorded yet.</td></tr>
           </tbody>
         </table>
       </div>
