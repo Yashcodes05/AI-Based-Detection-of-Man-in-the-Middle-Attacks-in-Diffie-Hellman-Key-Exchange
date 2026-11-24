@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.pkl
+*.joblib
+.venv/
+venv/
+.env
+.pytest_cache/
+models/*.pkl
+data/*.csv

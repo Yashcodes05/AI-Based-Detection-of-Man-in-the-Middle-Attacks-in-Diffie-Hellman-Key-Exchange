@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-Based DH MITM Detection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <div class="eyebrow">CYBERSECURITY · DIFFIE–HELLMAN · AI ANOMALY DETECTION</div>
+      <h1>AI-Based Detection of <span>Man-in-the-Middle</span> Attacks in Diffie–Hellman</h1>
+      <p class="subtitle">
+        Behavioral detection layer observing network, handshake, and session metadata — without inspecting cryptographic secrets.
+      </p>
+    </header>
+
+    <section class="controls-bar card">
+      <div class="control-group">
+        <button id="btn-honest" class="btn btn-primary">Run Honest Exchange (Alice ↔ Bob)</button>
+        <div class="mitm-group">
+          <select id="attack-profile" class="select">
+            <option value="active_mitm">Active Key-Substitution MITM</option>
+            <option value="stealth_mitm">Stealth Low-Latency MITM</option>
+            <option value="retry_mitm">Retry / Replay-Heavy MITM</option>
+          </select>
+          <button id="btn-mitm" class="btn btn-danger">Simulate MITM Attack</button>
+        </div>
+      </div>
+      <button id="btn-retrain" class="btn btn-ghost">Retrain Baseline</button>
+    </section>
+
+    <main class="grid-2">
+      <!-- Risk Score & Interpretable Indicators (Slide 8) -->
+      <section class="card risk-card" id="risk-card">
+        <div class="card-header">
+          <span class="badge" id="verdict-badge">AWAITING SESSION</span>
+          <span class="meta" id="session-id-label">—</span>
+        </div>
+        <div class="risk-score-row">
+          <div class="risk-number" id="risk-score">--</div>
+          <div class="risk-denom">/ 100</div>
+          <span class="risk-level" id="risk-level">—</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="risk-bar" style="width: 0%"></div>
+        </div>
+
+        <h3 class="section-label">INTERPRETABLE INDICATORS</h3>
+        <ul class="indicators-list" id="indicators-list">
+          <li class="muted">Run a handshake simulation to inspect behavioral indicators.</li>
+        </ul>
+      </section>
+
+      <!-- Diffie-Hellman Cryptographic Exchange View (Slides 2-3) -->
+      <section class="card crypto-card">
+        <div class="card-header">
+          <span class="section-label">DIFFIE–HELLMAN HANDSHAKE (RFC 3526 2048-BIT)</span>
+          <span class="meta" id="crypto-match-badge">—</span>
+        </div>
+
+        <div class="topology" id="topology">
+          <div class="node node-alice">
+            <div class="node-title">ALICE</div>
+            <div class="node-sub" id="alice-pub">Pub: —</div>
+            <div class="node-secret" id="alice-sec">K: —</div>
+          </div>
+          <div class="link-arrow" id="link-left">⇄</div>
+          <div class="node node-attacker hidden" id="node-attacker">
+            <div class="node-title">ATTACKER</div>
+            <div class="node-sub">Substitutes gᵃ, gᵇ</div>
+            <div class="node-secret">K₁ ≠ K₂</div>
+          </div>
+          <div class="link-arrow hidden" id="link-right">⇄</div>
+          <div class="node node-bob">
+            <div class="node-title">BOB</div>
+            <div class="node-sub" id="bob-pub">Pub: —</div>
+            <div class="node-secret" id="bob-sec">K: —</div>
+          </div>
+        </div>
+
+        <h3 class="section-label">OBSERVABLE TELEMETRY SNAPSHOT</h3>
+        <div class="telemetry-grid" id="telemetry-grid">
+          <div class="tel-item"><span>Latency</span><strong id="tel-lat">—</strong></div>
+          <div class="tel-item"><span>Latency Spread</span><strong id="tel-spread">—</strong></div>
+          <div class="tel-item"><span>Retries</span><strong id="tel-retries">—</strong></div>
+          <div class="tel-item"><span>Intermediaries</span><strong id="tel-inter">—</strong></div>
+          <div class="tel-item"><span>Path Anomaly</span><strong id="tel-path">—</strong></div>
+          <div class="tel-item"><span>Auth/Cert Flag</span><strong id="tel-auth">—</strong></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Model Comparison (Slide 7) -->
+    <section class="card">
+      <div class="card-header">
+        <span class="section-label">DETECTION MODEL & COMPARISON BASELINES</span>
+        <span class="meta">Isolation Forest trained on normal traffic only</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Paradigm</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>F1 Score</th>
+              <th>ROC-AUC</th>
+            </tr>
+          </thead>
+          <tbody id="metrics-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Recent Session Log -->
+    <section class="card">
+      <div class="card-header">
+        <span class="section-label">RECENT HANDSHAKE SESSIONS</span>
+        <span class="meta">Real local TCP socket exchanges</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Session ID</th>
+              <th>Actual Mode</th>
+              <th>Secrets Match</th>
+              <th>Risk Score</th>
+              <th>AI Verdict</th>
+              <th>Top Indicator</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-body">
+            <tr><td colspan="7" class="muted">No sessions recorded yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
