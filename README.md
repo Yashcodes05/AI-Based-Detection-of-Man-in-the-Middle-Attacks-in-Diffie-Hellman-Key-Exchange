@@ -4,7 +4,7 @@ An AI-driven behavioral anomaly detection layer for identifying Man-in-the-Middl
 
 ## Architecture
 
-1. **Diffie–Hellman Socket Simulator (`dh_engine.py`)**
+1. **Diffie–Hellman Socket Simulator (`dh_engine.py`)** 
    - Executes real local TCP socket DH handshakes using RFC 3526 2048-bit MODP Group 14 (`p`, `g = 2`).
    - Supports **Honest Exchange** (`Alice ↔ Bob`, establishing identical `K`) and **Active MITM Proxy** (`Alice ↔ Attacker ↔ Bob`, establishing split keys `K1 ≠ K2`) across `active_mitm`, `stealth_mitm`, and `retry_mitm` profiles.
 2. **Observable Feature Engineering (`features.py`)**
