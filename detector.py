@@ -235,6 +235,30 @@ class DHMitmDetector:
 
         return indicators
 
+    def get_feature_breakdown(self, telemetry: dict[str, Any]) -> list[dict[str, Any]]:
+        """Return all 14 observable features with baseline comparison and z-scores."""
+        if not self.is_trained or self.baseline_mean is None or self.baseline_std is None:
+            raise RuntimeError("Detector must be trained before inspecting features.")
+
+        vec = extract_feature_vector(telemetry)
+        z_scores = (vec - self.baseline_mean) / self.baseline_std
+        breakdown: list[dict[str, Any]] = []
+        for idx, fname in enumerate(FEATURE_NAMES):
+            spec = FEATURE_SPEC_MAP[fname]
+            z = float(z_scores[idx])
+            breakdown.append(
+                {
+                    "feature": fname,
+                    "category": spec.category,
+                    "label": spec.indicator_label,
+                    "observed": round(float(vec[idx]), 2),
+                    "baseline_mean": round(float(self.baseline_mean[idx]), 2),
+                    "z_score": round(z, 2),
+                    "severity": "high" if z >= 3.0 else ("medium" if z >= 1.5 else "normal"),
+                }
+            )
+        return breakdown
+
     def save(self, path: Path = DEFAULT_MODEL_PATH) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("wb") as f:

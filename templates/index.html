@@ -27,6 +27,7 @@
           </select>
           <button id="btn-mitm" class="btn btn-danger">Simulate MITM Attack</button>
         </div>
+        <button id="btn-batch" class="btn btn-secondary">Run Batch (10 Sessions)</button>
       </div>
       <div class="control-group">
         <label class="ai-toggle" for="ai-toggle-input" title="Toggle AI Behavioral Detection Layer">
@@ -42,6 +43,26 @@
       <span class="banner-dot"></span>
       <span id="ai-banner-text">AI Behavioral Monitor is <strong>ACTIVE</strong> — handshakes are scored in real time for MITM anomalies.</span>
     </div>
+
+    <!-- KPI Summary Strip -->
+    <section class="kpi-grid">
+      <div class="card kpi-card">
+        <span class="kpi-label">TOTAL SESSIONS</span>
+        <strong class="kpi-value" id="kpi-total">0</strong>
+      </div>
+      <div class="card kpi-card">
+        <span class="kpi-label">MITM ATTACKS CAUGHT</span>
+        <strong class="kpi-value kpi-red" id="kpi-caught">0 / 0</strong>
+      </div>
+      <div class="card kpi-card">
+        <span class="kpi-label">AVG NORMAL RISK</span>
+        <strong class="kpi-value kpi-green" id="kpi-avg-norm">—</strong>
+      </div>
+      <div class="card kpi-card">
+        <span class="kpi-label">AVG MITM RISK</span>
+        <strong class="kpi-value kpi-cyan" id="kpi-avg-mitm">—</strong>
+      </div>
+    </section>
 
     <main class="grid-2">
       <!-- Risk Score & Interpretable Indicators (Slide 8) -->
@@ -104,6 +125,35 @@
       </section>
     </main>
 
+    <!-- Risk Score Timeline & 14-Feature Inspector -->
+    <section class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <span class="section-label">LIVE RISK SCORE TIMELINE</span>
+          <span class="meta">Dashed line = 70/100 alert threshold</span>
+        </div>
+        <div class="chart-wrap">
+          <svg id="risk-chart" viewBox="0 0 540 170" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="section-label">14-FEATURE TELEMETRY &amp; Z-SCORE INSPECTOR</span>
+          <span class="meta" id="feat-session-label">Latest session</span>
+        </div>
+        <div class="tab-row" id="feature-tabs">
+          <button class="tab-btn active" data-cat="All">All (14)</button>
+          <button class="tab-btn" data-cat="Network">Network (5)</button>
+          <button class="tab-btn" data-cat="Handshake">Handshake (5)</button>
+          <button class="tab-btn" data-cat="Behavioral">Behavioral (4)</button>
+        </div>
+        <div class="feature-bars" id="feature-bars">
+          <div class="muted" style="font-size:13px;">Run a simulation to inspect all 14 observable features.</div>
+        </div>
+      </div>
+    </section>
+
     <!-- Model Comparison (Slide 7) -->
     <section class="card">
       <div class="card-header">
@@ -128,12 +178,41 @@
       </div>
     </section>
 
-    <!-- Recent Session Log -->
+    <!-- Recent Session Log with Filters -->
     <section class="card">
       <div class="card-header">
         <span class="section-label">RECENT HANDSHAKE SESSIONS</span>
-        <span class="meta">Real local TCP socket exchanges</span>
+        <div class="filter-actions">
+          <span class="meta" id="session-count-label">0 shown</span>
+          <button id="btn-clear" class="btn btn-ghost btn-sm">Clear Log</button>
+        </div>
       </div>
+
+      <div class="filter-bar">
+        <input type="text" id="filter-search" class="input" placeholder="Search Session ID or Indicator..." />
+        <select id="filter-verdict" class="select">
+          <option value="all">Verdict: All</option>
+          <option value="anomalous">Flagged (MITM / Suspicious)</option>
+          <option value="normal">Normal / Accepted</option>
+        </select>
+        <select id="filter-ai" class="select">
+          <option value="all">AI Layer: All</option>
+          <option value="on">AI: ON</option>
+          <option value="off">AI: OFF</option>
+        </select>
+        <select id="filter-profile" class="select">
+          <option value="all">Profile: All</option>
+          <option value="none">Honest (none)</option>
+          <option value="active_mitm">Active MITM</option>
+          <option value="stealth_mitm">Stealth MITM</option>
+          <option value="retry_mitm">Retry MITM</option>
+        </select>
+        <label class="slider-wrap">
+          <span>Min Risk: <strong id="min-risk-val">0</strong></span>
+          <input type="range" id="filter-min-risk" min="0" max="100" value="0" />
+        </label>
+      </div>
+
       <div class="table-wrap">
         <table>
           <thead>

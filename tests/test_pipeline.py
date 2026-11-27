@@ -73,6 +73,7 @@ class TestDHMitmPipeline(unittest.TestCase):
         data_mitm = res_mitm.get_json()
         self.assertFalse(data_mitm["session"]["secrets_match"])
         self.assertTrue(data_mitm["detection"]["is_anomalous"])
+        self.assertEqual(len(data_mitm["feature_details"]), len(FEATURE_NAMES))
 
         res_ai_off = client.post("/api/simulate", json={"attack_profile": "active_mitm", "ai_enabled": False})
         self.assertEqual(res_ai_off.status_code, 200)
@@ -82,9 +83,17 @@ class TestDHMitmPipeline(unittest.TestCase):
         self.assertFalse(data_off["detection"]["is_anomalous"])
         self.assertEqual(data_off["detection"]["verdict"], "ACCEPTED (NO AI)")
 
+        res_batch = client.post("/api/simulate_batch", json={"ai_enabled": True})
+        self.assertEqual(res_batch.status_code, 200)
+        self.assertEqual(res_batch.get_json()["count"], 10)
+
         res_sessions = client.get("/api/sessions")
         self.assertEqual(res_sessions.status_code, 200)
-        self.assertGreaterEqual(len(res_sessions.get_json()["sessions"]), 2)
+        self.assertGreaterEqual(len(res_sessions.get_json()["sessions"]), 12)
+
+        res_clear = client.post("/api/clear")
+        self.assertEqual(res_clear.status_code, 200)
+        self.assertEqual(len(client.get("/api/sessions").get_json()["sessions"]), 0)
 
 
 if __name__ == "__main__":
