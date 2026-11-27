@@ -21,6 +21,7 @@ const minRiskVal = document.getElementById("min-risk-val");
 let allSessions = [];
 let selectedRecord = null;
 let activeFeatureCat = "All";
+let kpiBaselineCount = 0;
 
 function updateAiToggleUI() {
   const enabled = aiToggle.checked;
@@ -50,8 +51,10 @@ async function loadSessions() {
   const res = await fetch("/api/sessions");
   const data = await res.json();
   allSessions = data.sessions || [];
-  updateKPIs(allSessions);
-  renderRiskChart(allSessions);
+  const statsCount = Math.max(0, allSessions.length - kpiBaselineCount);
+  const statsSessions = allSessions.slice(0, statsCount);
+  updateKPIs(statsSessions);
+  renderRiskChart(statsSessions);
   applySessionFilters();
 }
 
@@ -386,12 +389,16 @@ btnBatch.addEventListener("click", async () => {
 });
 
 btnClear.addEventListener("click", async () => {
+  kpiBaselineCount = 0;
   await fetch("/api/clear", { method: "POST" });
   await loadSessions();
 });
 
 function resetDashboardView() {
   selectedRecord = null;
+  kpiBaselineCount = allSessions.length;
+  updateKPIs([]);
+  renderRiskChart([]);
 
   const badge = document.getElementById("verdict-badge");
   badge.className = "badge";
