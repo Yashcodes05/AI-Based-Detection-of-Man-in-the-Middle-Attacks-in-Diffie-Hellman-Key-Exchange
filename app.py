@@ -12,6 +12,7 @@ from detector import DHMitmDetector
 from dh_engine import AttackProfile, run_socket_dh_session
 
 app = Flask(__name__)
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 detector = DHMitmDetector.load_or_train()
 session_history: deque[dict[str, Any]] = deque(maxlen=60)
 
