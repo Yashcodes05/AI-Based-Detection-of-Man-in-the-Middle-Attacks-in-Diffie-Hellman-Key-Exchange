@@ -1,6 +1,7 @@
 const btnHonest = document.getElementById("btn-honest");
 const btnMitm = document.getElementById("btn-mitm");
 const btnBatch = document.getElementById("btn-batch");
+const btnResetView = document.getElementById("btn-reset-view");
 const btnRetrain = document.getElementById("btn-retrain");
 const btnClear = document.getElementById("btn-clear");
 const profileSelect = document.getElementById("attack-profile");
@@ -388,6 +389,51 @@ btnClear.addEventListener("click", async () => {
   await fetch("/api/clear", { method: "POST" });
   await loadSessions();
 });
+
+function resetDashboardView() {
+  selectedRecord = null;
+
+  const badge = document.getElementById("verdict-badge");
+  badge.className = "badge";
+  badge.textContent = "AWAITING SESSION";
+  document.getElementById("session-id-label").textContent = "—";
+  document.getElementById("risk-score").textContent = "--";
+  document.getElementById("risk-level").textContent = "—";
+  const bar = document.getElementById("risk-bar");
+  bar.style.width = "0%";
+  bar.style.background = "var(--green)";
+  document.getElementById("indicators-list").innerHTML =
+    '<li class="muted">Run a handshake simulation to inspect behavioral indicators.</li>';
+
+  document.getElementById("alice-pub").textContent = "Pub: —";
+  document.getElementById("bob-pub").textContent = "Pub: —";
+  document.getElementById("alice-sec").textContent = "K: —";
+  document.getElementById("bob-sec").textContent = "K: —";
+  document.getElementById("crypto-match-badge").textContent = "—";
+  document.getElementById("node-attacker").classList.add("hidden");
+  document.getElementById("link-right").classList.add("hidden");
+
+  ["tel-lat", "tel-spread", "tel-retries", "tel-inter", "tel-path", "tel-auth"].forEach((id) => {
+    document.getElementById(id).textContent = "—";
+  });
+
+  activeFeatureCat = "All";
+  document.querySelectorAll("#feature-tabs .tab-btn").forEach((b) => {
+    b.classList.toggle("active", b.dataset.cat === "All");
+  });
+  document.getElementById("feat-session-label").textContent = "Latest session";
+  document.getElementById("feature-bars").innerHTML =
+    '<div class="muted" style="font-size:13px;">Run a simulation to inspect all 14 observable features.</div>';
+
+  filterSearch.value = "";
+  filterVerdict.value = "all";
+  filterAi.value = "all";
+  filterProfile.value = "all";
+  filterMinRisk.value = "0";
+  applySessionFilters();
+}
+
+btnResetView.addEventListener("click", resetDashboardView);
 
 btnRetrain.addEventListener("click", async () => {
   btnRetrain.disabled = true;
