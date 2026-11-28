@@ -25,7 +25,7 @@ from features import FEATURE_SPECS
 
 ROOT = Path(__file__).resolve().parent
 ASSETS_DIR = ROOT / "report_assets"
-REPORT_PATH = ROOT / "MSRIT_CNS_Project_Report.docx"
+REPORT_PATH = ROOT / "MSRIT_CNS_Project_Report_v2.docx"
 
 NAVY = RGBColor(0x0F, 0x2B, 0x5B)
 DARK_GRAY = RGBColor(0x22, 0x22, 0x22)
@@ -157,6 +157,50 @@ def generate_diagrams(detector: DHMitmDetector) -> dict[str, Path]:
     plt.close(fig)
     paths["risk_distribution"] = p4
 
+    # 5. MSRIT Header Banner (Logo + Name + Department) matching the PDF template
+    fig, ax = plt.subplots(figsize=(8.5, 0.95), dpi=300)
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 1.15)
+    ax.axis("off")
+    fig.patch.set_facecolor("#ffffff")
+
+    # Stylized Ramaiah shield/emblem
+    shield = patches.Polygon(
+        [[0.22, 0.95], [0.82, 0.95], [0.82, 0.45], [0.52, 0.14], [0.22, 0.45]],
+        closed=True,
+        facecolor="#a61c3c",
+        edgecolor="#7c122b",
+        linewidth=1.2,
+    )
+    ax.add_patch(shield)
+    for dy in (0.76, 0.60, 0.44):
+        ax.plot([0.32, 0.72], [dy, dy - 0.08], color="#ffffff", linewidth=1.8, solid_capstyle="round")
+    ax.scatter([0.75], [0.90], color="#f59e0b", s=26, zorder=5)
+
+    # RAMAIAH Institute of Technology
+    ax.text(0.98, 0.68, "RAMAIAH", fontsize=14, fontweight="bold", color="#222222", va="center", family="sans-serif")
+    ax.text(0.98, 0.34, "Institute of Technology", fontsize=9.5, color="#444444", va="center", family="sans-serif")
+
+    # Vertical maroon divider
+    ax.plot([3.25, 3.25], [0.15, 0.98], color="#a61c3c", linewidth=1.6)
+
+    # DEPARTMENT OF CSE (CYBER SECURITY)
+    ax.text(
+        3.48,
+        0.52,
+        "DEPARTMENT OF CSE (CYBER SECURITY)",
+        fontsize=11.5,
+        fontweight="bold",
+        color="#112b6b",
+        va="center",
+        family="sans-serif",
+    )
+
+    p_hdr = ASSETS_DIR / "msrit_header.png"
+    fig.savefig(p_hdr, bbox_inches="tight", pad_inches=0.04, dpi=300)
+    plt.close(fig)
+    paths["header_banner"] = p_hdr
+
     return paths
 
 
@@ -276,19 +320,17 @@ def build_report() -> None:
     normal_style.font.size = Pt(11)
 
     section = doc.sections[0]
-    section.different_first_page_header_footer = True
-    section.top_margin = Inches(0.85)
-    section.bottom_margin = Inches(0.85)
+    section.different_first_page_header_footer = False
+    section.top_margin = Inches(1.1)
+    section.bottom_margin = Inches(0.8)
     section.left_margin = Inches(0.95)
     section.right_margin = Inches(0.95)
+    section.header_distance = Inches(0.35)
 
-    # Header & Footer for pages 2+
+    # Header with Logo + Name + Department on EVERY page (matching template PDF)
     hdr = section.header.paragraphs[0]
-    hdr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    hr = hdr.add_run("RAMAIAH INSTITUTE OF TECHNOLOGY  |  DEPARTMENT OF CSE (CYBER SECURITY)")
-    hr.font.size = Pt(8.5)
-    hr.bold = True
-    hr.font.color.rgb = NAVY
+    hdr.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    hdr.add_run().add_picture(str(figs["header_banner"]), width=Inches(6.5))
 
     ftr = section.footer.paragraphs[0]
     ftr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -298,18 +340,7 @@ def build_report() -> None:
     add_page_number(ftr.add_run())
 
     # ==================== PAGE 1: COVER PAGE ====================
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p.add_run("M. S. RAMAIAH INSTITUTE OF TECHNOLOGY\n")
-    r.bold = True
-    r.font.size = Pt(14)
-    r.font.color.rgb = NAVY
-    r2 = p.add_run("DEPARTMENT OF CSE (CYBER SECURITY)")
-    r2.bold = True
-    r2.font.size = Pt(11)
-    r2.font.color.rgb = RGBColor(0x8B, 0x1E, 0x3F)
-
-    doc.add_paragraph("\n")
+    doc.add_paragraph()
     p_sub = doc.add_paragraph()
     p_sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
     rs = p_sub.add_run("Cryptography and Network Security Project Report")
